@@ -34,6 +34,7 @@ public class ConsoleMenu {
                     case "5" -> searchBooks();
                     case "6" -> showAllBooks();
                     case "7" -> showAllMembers();
+                    case "8" -> showTopBorrower();
                     case "e" -> running = false;
                     default -> System.out.println("Ogiltigt val: \"" + choice + "\". Försök igen.");
                 }
@@ -55,6 +56,7 @@ public class ConsoleMenu {
         System.out.println("5. Sök bok (titel eller författare)");
         System.out.println("6. Visa alla böcker och status");
         System.out.println("7. Visa alla medlemmar");
+        System.out.println("8. Statistik: medlem med flest aktiva lån");
         System.out.println("e. Avsluta");
     }
 
@@ -71,12 +73,13 @@ public class ConsoleMenu {
     private void registerMember() {
         String name = readNonEmpty("Namn: ");
         Member member = library.registerMember(name);
-        System.out.println("Medlem registrerad: " + member);
+        System.out.println("Medlem registrerad: " + member.getName()
+                + " fick medlems-id " + member.getDisplayId() + ".");
     }
 
     private void borrowBook() {
         String isbn = readNonEmpty("ISBN på boken: ");
-        int memberId = readInt("Medlems-id: ");
+        int memberId = readMemberId("Medlems-id (t.ex. ID-1 eller 1): ");
         Book book = library.borrowBook(isbn, memberId);
         System.out.println("Utlånad: " + book);
     }
@@ -105,11 +108,13 @@ public class ConsoleMenu {
             System.out.println("Biblioteket har inga böcker ännu.");
             return;
         }
+        // BUBBLE SORT. Böckerna visas i bokstavsordning på titel.
+        library.sortBooksByTitle();
         for (int i = 0; i < library.getBookCount(); i++) {
             Member borrower = library.getBorrower(i);
             String status = (borrower == null)
                     ? "Tillgänglig"
-                    : "Utlånad till " + borrower.getName() + " (#" + borrower.getId() + ")";
+                    : "Utlånad till " + borrower.getName() + " (" + borrower.getDisplayId() + ")";
             System.out.println((i + 1) + ". " + library.getBook(i) + " – " + status);
         }
     }
@@ -121,6 +126,17 @@ public class ConsoleMenu {
         }
         for (int i = 0; i < library.getMemberCount(); i++) {
             System.out.println("  " + library.getMember(i));
+        }
+    }
+
+    // Statistik: visar medlemmen som för tillfället har flest aktiva lån.
+    private void showTopBorrower() {
+        Member top = library.getMemberWithMostLoans();
+        if (top == null) {
+            System.out.println("Ingen medlem har några aktiva lån just nu.");
+        } else {
+            System.out.println("Flest aktiva lån: " + top.getName() + " (" + top.getDisplayId() + ") med "
+                    + top.getActiveLoans() + " lån.");
         }
     }
 
@@ -146,13 +162,21 @@ public class ConsoleMenu {
         }
     }
 
-    private int readInt(String prompt) {
+    // Läser ett medlems id. Tillåter både ID-1, id1 och bara 1.
+    private int readMemberId(String prompt) {
         while (true) {
             String input = readLine(prompt);
+            String digits = input.toUpperCase();
+            if (digits.startsWith("ID")) {
+                digits = digits.substring(2);
+                if (digits.startsWith("-")) {
+                    digits = digits.substring(1);
+                }
+            }
             try {
-                return Integer.parseInt(input);
+                return Integer.parseInt(digits.trim());
             } catch (NumberFormatException e) {
-                System.out.println("\"" + input + "\" är inget heltal. Försök igen.");
+                System.out.println("\"" + input + "\" är inget giltigt medlems ID. Ange t.ex ID-1 eller 1.");
             }
         }
     }

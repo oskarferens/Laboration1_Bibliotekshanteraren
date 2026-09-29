@@ -1,7 +1,9 @@
 package org.example.model;
 
-//En medlem i biblioteket är en vanlig klass, eftersom antalet
-//aktiva lån förändras över tid och objektet har ett föränderligt tillstånd.
+/**
+ * En medlem i biblioteket. Vanlig klass (inte record) eftersom antalet
+ * aktiva lån förändras över tid – objektet har ett föränderligt tillstånd.
+ */
 public class Member {
 
     public static final int MAX_LOANS = 3;
@@ -23,6 +25,11 @@ public class Member {
         return id;
     }
 
+    // Läsbart medlems id som visas för användaren, t.ex. ID-1.
+    public String getDisplayId() {
+        return "ID-" + id;
+    }
+
     public String getName() {
         return name;
     }
@@ -38,12 +45,12 @@ public class Member {
         return activeLoans;
     }
 
-    /** metoden avgör om medlemmen får låna fler böcker. */
+    /** Avgör om medlemmen får låna fler böcker. */
     public boolean canBorrowMore() {
         return activeLoans < MAX_LOANS;
     }
 
-    /** registrerar ett nytt lån på medlemmen. */
+    /** Registrerar ett nytt lån på medlemmen. */
     public void registerLoan() {
         if (!canBorrowMore()) {
             throw new IllegalStateException(name + " har redan maximalt antal lån (" + MAX_LOANS + ").");
@@ -51,7 +58,7 @@ public class Member {
         activeLoans++;
     }
 
-    /** Registrerar att medlemmen lämnat boken tillbaka. */
+    /** Registrerar att medlemmen lämnat tillbaka en bok. */
     public void registerReturn() {
         if (activeLoans > 0) {
             activeLoans--;
@@ -60,6 +67,6 @@ public class Member {
 
     @Override
     public String toString() {
-        return "#" + id + " " + name + " (aktiva lån: " + activeLoans + "/" + MAX_LOANS + ")";
+        return getDisplayId() + " " + name + " (aktiva lån: " + activeLoans + "/" + MAX_LOANS + ")";
     }
 }
