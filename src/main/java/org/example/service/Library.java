@@ -1,9 +1,12 @@
-package org.example.model;
+package org.example.service;
 
 //Håller bibliotekets data i vanliga arrayer och innehåller all logik
 //för böcker, medlemmar och utlåning.
 //Utlåningen hålls i en parallell array: borrowers[i] är medlemmen som
 //lånat books[i], eller null om boken är tillgänglig.
+
+import org.example.model.Book;
+import org.example.model.Member;
 
 public class Library {
 
@@ -90,7 +93,7 @@ public class Library {
     // Delen som ansvarar för registrering och sökning medlemar efter id.
     public Member registerMember(String name) {
         if (memberCount == members.length) {
-            throw new IllegalStateException("Medlemsregistret är fullt – kan inte registrera fler medlemmar.");
+            throw new IllegalStateException("Medlemsregistret är fullt - kan inte registrera fler medlemmar.");
         }
         Member member = new Member(nextMemberId, name);
         nextMemberId++;
